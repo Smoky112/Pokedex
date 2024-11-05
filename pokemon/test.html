@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex Card</title>
+    <link rel="stylesheet" href="css/test.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="search-container">
+                <input type="text" placeholder="Search by name, dex #, or type..." class="search-input"
+                    id="search-input">
+                <button class="search-button" id="search-button" onclick="ricercaPk()">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm10-2 4 4" stroke="#fff" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-content">
+                <div class="sprite-container">
+                    <img alt="Sprite" id="sprite" width="150" height="150">
+                </div>
+                <div class="info">
+                    <div class="pokedex-number">#001</div>
+                    <h1 id="name">Bulbasaur</h1>
+                    <p>A strange seed was planted on its back at birth. The plant sprouts and grows with this Pokémon.</p>
+                    <div class="stats">
+                        <div>HP: 45</div>
+                        <div>ATK: 49</div>
+                        <div>DEF: 49</div>
+                        <div>SpA: 65</div>
+                        <div>SpD: 65</div>
+                        <div>SPD: 45</div>
+                    </div>
+                    <div class="abilities-container">
+                        <h2>Abilities</h2>
+                        <div class="abilities">
+                            <div>Overgrow</div>
+                            <div>Chlorophyll</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="js/test.js"></script>
+</body>
+
+</html>
