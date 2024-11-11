@@ -7,6 +7,7 @@ function ricercaPk() {
     const nameElement = document.getElementById("name");
     const descriptionElement = document.getElementById("description");
     const sprite = document.getElementById("sprite");
+    const numeroPokemon = document.getElementById("number");
 
     if (!nomePokemon) {
         alert("Inserisci un nome di Pokémon.");
@@ -22,18 +23,20 @@ function ricercaPk() {
         })
         .then(data => {
             const name = upper(data.name);
-            const image = data.sprites.front_default;
+            // const image = data.sprites.front_default;
+            const image = data.sprites.other.dream_world.front_default;
             const hp = data.stats.find(stat => stat.stat.name === 'hp').base_stat;
             const attack = data.stats.find(stat => stat.stat.name === 'attack').base_stat;
             const defense = data.stats.find(stat => stat.stat.name === 'defense').base_stat;
             const specialAttack = data.stats.find(stat => stat.stat.name === 'special-attack').base_stat;
             const specialDefense = data.stats.find(stat => stat.stat.name === 'special-defense').base_stat;
             const speed = data.stats.find(stat => stat.stat.name === 'speed').base_stat;
-            const abilities = data.abilities.map(ability => upper(ability.ability.name)).join(', ');
+            const abilities = data.abilities.map(ability => upper(ability.ability.name.replace('-', ' '))).join(', ');
 
             if (nameElement && descriptionElement && sprite) {
-                nameElement.textContent = `#${data.id.toString().padStart(3, '0')} ${name}`;
-                descriptionElement.textContent = data.species.flavor_text_entries[0].flavor_text.replace('\n', ' ');
+                nameElement.textContent = name;
+                numeroPokemon.textContent = `#${data.id.toString().padStart(3, '0')}`
+                // descriptionElement.textContent = data.species.flavor_text_entries[0].flavor_text.replace('\n', ' ');
                 sprite.src = image;
 
                 const statsElements = document.querySelectorAll('.stats > div');
