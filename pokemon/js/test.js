@@ -65,7 +65,7 @@ function ricercaPk() {
                 Promise.all(abilities.map(url => getAbilityTranslation(url)))
                     .then(translatedAbilities => {
                         abilitiesElements.innerHTML = "";
-                        
+
                         translatedAbilities.forEach((ability, _) => {
                             let ab = document.createElement("div");
                             ab.className = "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg shadow";
@@ -102,11 +102,12 @@ function ricercaPk() {
                     descriptionElement.textContent = "Errore nel recupero della descrizione.";
                 });
         })
+        .then(() => { //qui in fondo così si vede solo quando tutto è caricato
+            document.getElementById("main-box").hidden = false;
+        })
         .catch(error => {
             console.error(error);
         });
-
-    document.getElementById("main-box").hidden = false ;
 }
 
 document.getElementById("search-input").addEventListener("keyup", event => {
