@@ -2,12 +2,26 @@ function upper(word) {
     return word[0].toUpperCase() + word.slice(1);
 }
 
+function getAbilityTranslation(abilityUrl) {
+    return fetch(abilityUrl)
+        .then(response => response.json())
+        .then(data => {
+            const italianTranslation = data.names.find(name => name.language.name === 'it');
+            return italianTranslation ? italianTranslation.name : data.name;
+        })
+        .catch(error => {
+            console.error("Errore nel recupero della traduzione dell'abilità:", error);
+            return "Errore nella traduzione";
+        });
+}
+
 function ricercaPk() {
     const nomePokemon = document.getElementById("search-input").value.toLowerCase();
     const nameElement = document.getElementById("name");
     const descriptionElement = document.getElementById("description");
     const sprite = document.getElementById("sprite");
     const numeroPokemon = document.getElementById("number");
+    const abilitiesElements = document.getElementById('ability-div');
 
     if (!nomePokemon) {
         alert("Inserisci un nome di Pokémon.");
@@ -23,20 +37,19 @@ function ricercaPk() {
         })
         .then(data => {
             const name = upper(data.name);
-            // const image = data.sprites.front_default;
-            const image = data.sprites.other.dream_world.front_default;
+            let image = data.sprites.other.dream_world?.front_default || data.sprites.front_default; //FALLBACK in caso non ci fosse dream_world
+
             const hp = data.stats.find(stat => stat.stat.name === 'hp').base_stat;
             const attack = data.stats.find(stat => stat.stat.name === 'attack').base_stat;
             const defense = data.stats.find(stat => stat.stat.name === 'defense').base_stat;
             const specialAttack = data.stats.find(stat => stat.stat.name === 'special-attack').base_stat;
             const specialDefense = data.stats.find(stat => stat.stat.name === 'special-defense').base_stat;
             const speed = data.stats.find(stat => stat.stat.name === 'speed').base_stat;
-            const abilities = data.abilities.map(ability => upper(ability.ability.name.replace('-', ' '))).join(', ');
+            const abilities = data.abilities.map(ability => ability.ability.url); // URL delle abilità per la traduzione
 
             if (nameElement && descriptionElement && sprite) {
                 nameElement.textContent = name;
-                numeroPokemon.textContent = `#${data.id.toString().padStart(3, '0')}`
-                // descriptionElement.textContent = data.species.flavor_text_entries[0].flavor_text.replace('\n', ' ');
+                numeroPokemon.textContent = `#${data.id.toString().padStart(3, '0')}`;
                 sprite.src = image;
 
                 const statsElements = document.querySelectorAll('.stats > div');
@@ -49,14 +62,59 @@ function ricercaPk() {
                     statsElements[5].textContent = `SPD: ${speed}`;
                 }
 
-                const abilitiesElements = document.querySelectorAll('.abilities > div');
-                if (abilitiesElements.length >= 2) {
-                    abilitiesElements[0].textContent = abilities.split(',')[0].trim();
-                    abilitiesElements[1].textContent = abilities.split(',')[1]?.trim() || '';
-                }
+                Promise.all(abilities.map(url => getAbilityTranslation(url)))
+                    .then(translatedAbilities => {
+                        abilitiesElements.innerHTML = "";
+                        
+                        translatedAbilities.forEach((ability, _) => {
+                            let ab = document.createElement("div");
+                            ab.className = "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg shadow";
+                            ab.textContent = upper(ability.replace('-', ' '));
+                            abilitiesElements.appendChild(ab);
+                        });
+
+                        /* translatedAbilities.forEach((ability, index) => {
+                            if (abilitiesElements[index]) {
+                                abilitiesElements[index].textContent = upper(ability.replace('-', ' ')); // Mostra l'abilità tradotta
+                            }
+                        }); */
+                    })
+                    .catch(error => {
+                        console.error("Errore nel recupero delle abilità:", error);
+                        abilitiesElements.forEach(element => {
+                            element.textContent = "Errore nel recupero delle abilità.";
+                        });
+                    });
             }
+
+            fetch(`https://pokeapi.co/api/v2/pokemon-species/${data.id}`)
+                .then(response => response.json())
+                .then(speciesData => {
+                    const italianDescription = speciesData.flavor_text_entries.find(entry => entry.language.name === 'it');
+                    if (italianDescription) {
+                        descriptionElement.textContent = italianDescription.flavor_text.replace(/\n/g, ' ');
+                    } else {
+                        descriptionElement.textContent = "Descrizione non disponibile in italiano.";
+                    }
+                })
+                .catch(error => {
+                    console.error("Errore nel recupero della descrizione:", error);
+                    descriptionElement.textContent = "Errore nel recupero della descrizione.";
+                });
         })
         .catch(error => {
             console.error(error);
         });
+
+    document.getElementById("main-box").hidden = false ;
 }
+
+document.getElementById("search-input").addEventListener("keyup", event => {
+    if (event.key !== "Enter") return;
+    document.getElementById("search-button").click();
+    event.preventDefault();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("main-box").hidden = true;
+});
