@@ -68,16 +68,10 @@ function ricercaPk() {
 
                         translatedAbilities.forEach((ability, _) => {
                             let ab = document.createElement("div");
-                            ab.className = "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg shadow";
+                            ab.className = "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg hover:shadow-2xl transition duration-300";
                             ab.textContent = upper(ability.replace('-', ' '));
                             abilitiesElements.appendChild(ab);
                         });
-
-                        /* translatedAbilities.forEach((ability, index) => {
-                            if (abilitiesElements[index]) {
-                                abilitiesElements[index].textContent = upper(ability.replace('-', ' ')); // Mostra l'abilità tradotta
-                            }
-                        }); */
                     })
                     .catch(error => {
                         console.error("Errore nel recupero delle abilità:", error);
@@ -104,6 +98,41 @@ function ricercaPk() {
         })
         .then(() => { //qui in fondo così si vede solo quando tutto è caricato
             document.getElementById("main-box").hidden = false;
+
+            const pokeball = document.getElementById("pokeball");
+            const fade = document.getElementById("fade");
+
+            pokeball.classList.remove("bounce");
+            pokeball.classList.add("hover:animate-pulse");
+            pokeball.addEventListener("click", event => {
+                fade.classList.remove("opacity-0", "pointer-events-none");
+                fade.classList.add("opacity-100");
+            
+                setTimeout(() => {
+                    fade.classList.add("opacity-0", "pointer-events-none");
+                }, 1000);
+
+
+                for (let i = 1; i <= 2; i++) {
+                    setTimeout(() => {
+                        fade.classList.replace("bg-[#fff]", "bg-[#fffcb7]");
+                    }, 775 + (200 * (i + 1)));
+                    setTimeout(() => {
+                        fade.classList.replace("bg-[#fffcb7]", "bg-[#fff]");
+                    }, 850 + (200 * (i + 1)));
+                }
+
+                setTimeout(() => {
+                    fade.classList.remove("opacity-100");
+                    fade.classList.add("opacity-0", "pointer-events-none");
+                    
+                    setTimeout(() => {
+                        fade.classList.add("pointer-events-none");
+                    }, 1000);
+                }, 2000);
+
+            });
+            
         })
         .catch(error => {
             console.error(error);
@@ -116,6 +145,8 @@ document.getElementById("search-input").addEventListener("keyup", event => {
     event.preventDefault();
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+/* document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("main-box").hidden = true;
-});
+}); */
+
+document.getElementById("main-box").hidden = true;
