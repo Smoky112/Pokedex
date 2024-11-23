@@ -193,6 +193,115 @@ function ricercaPk() {
     });
 }
 
+//CIAO
+// Funzione per caricare la squadra dal localStorage e mostrarla
+function loadSquad() {
+    const squad = JSON.parse(localStorage.getItem("squad")) || [];
+    squad.forEach(pokemon => {
+      addToSquad(pokemon);
+    });
+}
+  
+// Funzione per aggiungere un Pokémon alla visualizzazione
+function addToSquad(pokemon) {
+    const squadContainer = document.getElementById("squad-container");
+
+    // Contenitore principale del Pokémon con background nero
+    const pokemonDiv = document.createElement("div");
+    pokemonDiv.className = "relative flex items-center justify-start bg-black bg-opacity-50 rounded-lg p-2"; // Flex orizzontale
+
+    // Contenitore per lo sprite (a sinistra)
+    const pokemonSprite = document.createElement("img");
+    pokemonSprite.src = pokemon.sprite;
+    pokemonSprite.alt = pokemon.name;
+    pokemonSprite.className = "w-24 h-24 rounded-lg cursor-pointer hover:opacity-75"; // Posizionato a sinistra
+
+    // Contenitore per il nome, barra HP e valore HP (a destra)
+    const rightContainer = document.createElement("div");
+    rightContainer.className = "flex flex-col items-start ml-4"; // Per mantenere tutto a destra
+
+    // Nome del Pokémon
+    const pokemonName = document.createElement("span");
+    pokemonName.textContent = pokemon.name;
+    pokemonName.className = "text-white font-bold text-center py-1"; // Nome centrato sopra la barra HP
+
+    // Barra della vita (Health bar)
+    const hpBarContainer = document.createElement("div");
+    hpBarContainer.className = "w-full h-2 bg-gray-300 rounded-full mt-2";
+
+    const hpBar = document.createElement("div");
+    hpBar.className = "h-full rounded-full bg-white";
+    hpBar.style.width = `${pokemon.hpPercentage}%`; // Imposta la larghezza in base alla percentuale di HP
+
+    hpBarContainer.appendChild(hpBar);
+
+    // Valore degli HP sotto la barra (es. 40/100)
+    const hpValue = document.createElement("span");
+    hpValue.textContent = `${pokemon.hpPercentage} / 100`; // Mostra HP correnti e HP massimi
+    hpValue.className = "text-white text-center mt-1"; // Centra e separa un po' dalla barra
+
+    // Aggiungi tutto ciò nel contenitore a destra
+    rightContainer.appendChild(pokemonName);
+    rightContainer.appendChild(hpBarContainer); // Barra degli HP
+    rightContainer.appendChild(hpValue);  // Valore degli HP sotto la barra
+
+    // Aggiungi un evento per rimuovere il Pokémon dalla squadra
+    pokemonSprite.addEventListener("click", () => removeFromSquad(pokemonSprite));
+
+    // Aggiungi i contenuti al contenitore principale
+    pokemonDiv.appendChild(pokemonSprite);  // Sprite a sinistra
+    pokemonDiv.appendChild(rightContainer); // Resto a destra
+
+    squadContainer.appendChild(pokemonDiv);
+}
+
+// Funzione per rimuovere un Pokémon dalla squadra
+function removeFromSquad(pokemonSprite) {
+    const squadContainer = document.getElementById("squad-container");
+    squadContainer.removeChild(pokemonSprite.parentElement);
+
+    let squad = JSON.parse(localStorage.getItem("squad"));
+    squad = squad.filter(pokemon => pokemon.sprite !== pokemonSprite.src);
+    localStorage.setItem("squad", JSON.stringify(squad));
+}
+
+// Funzione per salvare il Pokémon nella squadra (localStorage)
+function savePokemon() {
+    const sprite = document.getElementById("sprite");
+    const name = document.getElementById("name").textContent;
+
+    let squad = JSON.parse(localStorage.getItem("squad")) || [];
+
+    if (squad.length >= 6) {
+        alert("La tua squadra è al completo! Puoi avere al massimo 6 Pokémon.");
+        return;
+    }
+
+    // Genera HP casuali tra 0 e 100
+    const randomHP = Math.floor(Math.random() * 101);
+
+    const pokemon = {
+        name: name,
+        sprite: sprite.src,
+        hpPercentage: randomHP // Memorizza la percentuale degli HP
+    };
+
+    squad.push(pokemon);
+
+    localStorage.setItem("squad", JSON.stringify(squad));
+
+    addToSquad(pokemon);
+}
+
+// Carica la squadra quando la pagina viene caricata
+window.onload = loadSquad;
+
+
+  //CIAO
+
+
+
+
 document.getElementById("search-input").addEventListener("keyup", (event) => {
   if (event.key !== "Enter") return;
   document.getElementById("search-button").click();
