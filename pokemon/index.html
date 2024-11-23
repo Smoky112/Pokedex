@@ -70,7 +70,19 @@
                 </div>
                 <div class="text-left flex-1">
                     <div id="number" class="absolute top-4 left-4 text-gray-300 text-sm">#000</div>
-                    <h1 id="name" class="text-2xl font-bold mb-4">b</h1>
+                    <div class="flex items-center justify-start gap-4 mb-4">
+                       
+                        <h1 id="name" class="text-3xl font-bold">Pokemon Name</h1>
+                        
+                        <span id="genderContainer" class="text-2xl">♂️</span>
+                
+                        <div id="type-container" class="flex gap-2 top-1">
+                           
+                        </div>
+                    </div>
+                    
+                    
+                    
                     <p id="description" class="mb-4">Descrizione</p>
                     <div class="stats grid grid-cols-2 gap-2 mb-6">
                         <div class="p-2 text-center text-gray-900 bg-green-400 rounded-lg hover:shadow-2xl transition duration-300">HP: 1</div>
@@ -90,8 +102,7 @@
 
             <div id="fade" style="z-index: 999;" class="fixed inset-0 bg-[#fff] opacity-0 pointer-events-none transition-opacity duration-700"></div>
         
-            <!-- Center the button and make it wider -->
-            <div class="flex justify-center mt-4"> <!-- Added margin-top to the button wrapper -->
+            <div class="flex justify-center mt-4"> 
                 <button id="save-button" onclick="savePokemon()"
                     class="mt-6 mb-0 w-full max-w-3xl p-3 bg-[#40a545] text-white rounded-lg hover:bg-[#317c34] hover:shadow-xl transition duration-300">
                     Aggiungi alla squadra
