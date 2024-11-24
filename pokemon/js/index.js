@@ -21,26 +21,37 @@ function getAbilityTranslation(abilityUrl) {
 }
 
 function getAbilityDescription(abilityUrl) {
-    return fetch(abilityUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        // Cerchiamo la descrizione dell'abilità in italiano
-        const description = data.effect_entries.find(
+  return fetch(abilityUrl)
+    .then((response) => response.json())
+    .then((data) => {
+
+      const italianDescription = data.effect_entries.find(
+        (entry) => entry.language.name === "it"
+      );
+
+      if (italianDescription) {
+
+        return italianDescription.effect.replace(/\n/g, " ");
+      } else {
+
+        const englishDescription = data.effect_entries.find(
           (entry) => entry.language.name === "en"
         );
-  
-        if (description) {
-          // Rimuoviamo eventuali ritorni a capo per visualizzare una descrizione compatta
-          return description.effect.replace(/\n/g, " ");
+
+        if (englishDescription) {
+          return englishDescription.effect.replace(/\n/g, " ");
+        } else {
+
+          return "Descrizione non disponibile.";
         }
-  
-        return "Descrizione non disponibile.";
-      })
-      .catch((error) => {
-        console.error("Errore nel recupero della descrizione dell'abilità:", error);
-        return "Errore nel recupero della descrizione";
-      });
-  }
+      }
+    })
+    .catch((error) => {
+      console.error("Errore nel recupero della descrizione dell'abilità:", error);
+      return "Errore nel recupero della descrizione.";
+    });
+}
+
   
 
 function ricercaPk() {
@@ -53,7 +64,6 @@ function ricercaPk() {
   const numeroPokemon = document.getElementById("number");
   const abilitiesElements = document.getElementById("ability-div");
   const typeContainer = document.getElementById("type-container");
-  const genderContainer = document.getElementById("gender-container");
 
   if (!nomePokemon) {
     alert("Inserisci un nome di Pokémon.");
@@ -72,6 +82,9 @@ function ricercaPk() {
       let image =
         data.sprites.other.dream_world?.front_default ||
         data.sprites.front_default;
+
+      // Aggiungi il simbolo del genere casuale
+      printRandomGender(); // Chiamata per inserire il genere nel DOM
 
       const hp = data.stats.find((stat) => stat.stat.name === "hp").base_stat;
       const attack = data.stats.find(
@@ -122,7 +135,7 @@ function ricercaPk() {
                   const tooltip = document.createElement("div");
                   tooltip.textContent = description;
                   tooltip.className =
-                    "absolute bg-gray-900 text-white p-2 rounded-md shadow-md mt-1 text-xs max-w-xs";
+                    "absolute bg-gray-900 text-white p-2 rounded-md shadow-md mt-1 text-xs max-w-xs z-10"; // Modificato il className con z-10
                   ab.appendChild(tooltip);
 
                   // Rimuovi la descrizione quando il mouse esce
@@ -151,18 +164,6 @@ function ricercaPk() {
           img.className = "w-14 h-14 object-contain mt-2"; // Evita distorsioni
           typeContainer.appendChild(img);
         });
-
-        // Gestione del sesso
-        document.addEventListener("DOMContentLoaded", () => {
-          const genderElement = document.getElementById("gender");
-
-          if (genderElement) {
-            const gender = Math.random() > 0.5 ? "♂️" : "♀️";
-            genderElement.textContent = gender;
-          } else {
-            console.error("Errore: Contenitore gender non trovato.");
-          }
-        });
       }
 
       fetch(`https://pokeapi.co/api/v2/pokemon-species/${data.id}`)
@@ -171,12 +172,22 @@ function ricercaPk() {
           const italianDescription = speciesData.flavor_text_entries.find(
             (entry) => entry.language.name === "it"
           );
+
           if (italianDescription) {
             descriptionElement.textContent =
               italianDescription.flavor_text.replace(/\n/g, " ");
           } else {
-            descriptionElement.textContent =
-              "Descrizione non disponibile in italiano.";
+            const englishDescription = speciesData.flavor_text_entries.find(
+              (entry) => entry.language.name === "en"
+            );
+
+            if (englishDescription) {
+              descriptionElement.textContent =
+                englishDescription.flavor_text.replace(/\n/g, " ");
+            } else {
+              descriptionElement.textContent =
+                "Descrizione non disponibile.";
+            }
           }
         })
         .catch((error) => {
@@ -192,6 +203,7 @@ function ricercaPk() {
       console.error(error);
     });
 }
+
 
 //CIAO
 // Funzione per caricare la squadra dal localStorage e mostrarla
@@ -216,7 +228,7 @@ function addToSquad(pokemon) {
     pokemonSprite.alt = pokemon.name;
     pokemonSprite.className = "w-24 h-24 rounded-lg cursor-pointer hover:opacity-75"; // Posizionato a sinistra
 
-    // Contenitore per il nome, barra HP e valore HP (a destra)
+    // Contenitore per il nome, genere, barra HP e valore HP (a destra)
     const rightContainer = document.createElement("div");
     rightContainer.className = "flex flex-col items-start ml-4"; // Per mantenere tutto a destra
 
@@ -227,18 +239,36 @@ function addToSquad(pokemon) {
 
     // Barra della vita (Health bar)
     const hpBarContainer = document.createElement("div");
-    hpBarContainer.className = "w-full h-2 bg-gray-300 rounded-full mt-2";
+    hpBarContainer.className = "w-full h-3 bg-gray-300 rounded-full mt-2 cursor-pointer"; // Cambia altezza per essere più simile ai giochi
 
     const hpBar = document.createElement("div");
-    hpBar.className = "h-full rounded-full bg-white";
+    hpBar.className = "h-full rounded-full transition-all duration-300"; // Transizione per renderla dinamica
+
+    // Determina il colore della barra in base alla percentuale di HP
+    if (pokemon.hpPercentage >= 66) {
+        hpBar.style.backgroundColor = "#76D700"; // Verde (Buona salute)
+    } else if (pokemon.hpPercentage >= 33) {
+        hpBar.style.backgroundColor = "#F7D700"; // Giallo (Salute media)
+    } else {
+        hpBar.style.backgroundColor = "#F70000"; // Rosso (Salute bassa)
+    }
+
     hpBar.style.width = `${pokemon.hpPercentage}%`; // Imposta la larghezza in base alla percentuale di HP
 
     hpBarContainer.appendChild(hpBar);
 
-    // Valore degli HP sotto la barra (es. 40/100)
+    // Valore degli HP sotto la barra (es. 40/150)
     const hpValue = document.createElement("span");
-    hpValue.textContent = `${pokemon.hpPercentage} / 100`; // Mostra HP correnti e HP massimi
+    hpValue.textContent = `${pokemon.hp} / ${pokemon.maxHP}`; // Mostra HP correnti e HP massimi
     hpValue.className = "text-white text-center mt-1"; // Centra e separa un po' dalla barra
+
+    // Aggiungi l'evento di clic sulla barra degli HP per riempirla
+    hpBarContainer.addEventListener("click", () => {
+        pokemon.hpPercentage = 100; // Imposta gli HP a 100% al clic sulla barra
+        hpBar.style.width = "100%"; // Riempi la barra
+        hpBar.style.backgroundColor = "#76D700"; // Cambia colore in verde
+        hpValue.textContent = `${pokemon.maxHP} / ${pokemon.maxHP}`; // Aggiorna il valore degli HP
+    });
 
     // Aggiungi tutto ciò nel contenitore a destra
     rightContainer.appendChild(pokemonName);
@@ -279,11 +309,15 @@ function savePokemon() {
 
     // Genera HP casuali tra 0 e 100
     const randomHP = Math.floor(Math.random() * 101);
+    const gender = Math.random() > 0.5 ? "Male" : "Female"; // Assegna un genere casuale (solo a scopo di esempio)
 
     const pokemon = {
         name: name,
         sprite: sprite.src,
-        hpPercentage: randomHP // Memorizza la percentuale degli HP
+        hpPercentage: randomHP, // Memorizza la percentuale degli HP
+        hp: randomHP, // HP correnti
+        maxHP: 100, // HP massimi
+        gender: gender // Genere del Pokémon
     };
 
     squad.push(pokemon);
@@ -294,12 +328,93 @@ function savePokemon() {
 }
 
 // Carica la squadra quando la pagina viene caricata
+function loadSquad() {
+    const squad = JSON.parse(localStorage.getItem("squad")) || [];
+    squad.forEach(pokemon => {
+      addToSquad(pokemon);
+    });
+}
+
+// Carica la squadra quando la pagina viene caricata
+window.onload = loadSquad;
+
+document.getElementById("poke-button").addEventListener("click", function() {
+  savePokemon()
+});
+
+
+
+// Funzione per salvare il Pokémon nella squadra (localStorage)
+function savePokemon() {
+  const sprite = document.getElementById("sprite");
+  const name = document.getElementById("name").textContent;
+
+  let squad = JSON.parse(localStorage.getItem("squad")) || [];
+
+  if (squad.length >= 6) {
+      alert("La tua squadra è al completo! Puoi avere al massimo 6 Pokémon.");
+      return;
+  }
+
+  // Ottieni i dati del Pokémon dall'API PokeAPI v2
+  fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`)
+      .then(response => response.json())
+      .then(data => {
+          // Calcola gli HP massimi utilizzando le statistiche di base
+          const baseHP = data.stats.find(stat => stat.stat.name === "hp").base_stat;
+          const level = 50; // Livello del Pokémon (per semplicità, assumiamo livello 100)
+
+          // Formula per calcolare gli HP massimi
+          const maxHP = Math.floor(((2 * baseHP + 31 + 0) * level) / 100 + level + 10); // IV=31, EV=0
+
+          // Calcola una percentuale casuale degli HP
+          const randomHP = Math.floor(Math.random() * maxHP);
+
+          const pokemon = {
+              name: name,
+              sprite: sprite.src,
+              hp: randomHP, // Gli HP effettivi calcolati
+              maxHP: maxHP, // HP massimi
+              hpPercentage: Math.round((randomHP / maxHP) * 100) // Percentuale di HP
+          };
+
+          squad.push(pokemon);
+          localStorage.setItem("squad", JSON.stringify(squad));
+
+          addToSquad(pokemon);
+      })
+      .catch(error => {
+          console.error("Errore nel recuperare i dati del Pokémon:", error);
+      });
+}
+
+
+
+// Carica la squadra quando la pagina viene caricata
 window.onload = loadSquad;
 
 
   //CIAO
 
-
+  function printRandomGender() {
+    const genderContainer = document.getElementById("genderContainer");
+  
+    // Verifica se l'elemento esiste
+    if (!genderContainer) {
+      console.error("Elemento con id 'genderContainer' non trovato!");
+      return;
+    }
+  
+    // Genera un numero casuale tra 0 e 1
+    const randomChoice = Math.random();
+  
+    // Assegna il simbolo maschile o femminile con una probabilità del 50%
+    if (randomChoice < 0.5) {
+      genderContainer.textContent = "♂️"; // Simbolo maschile
+    } else {
+      genderContainer.textContent = "♀️"; // Simbolo femminile
+    }
+  }
 
 
 document.getElementById("search-input").addEventListener("keyup", (event) => {
