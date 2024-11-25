@@ -3,10 +3,10 @@ function upper(word) {
 }
 
 function generateGUID() {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    var S4 = function () {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     };
-    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
 }
 
 function getAbilityTranslation(abilityUrl) {
@@ -61,8 +61,6 @@ function getAbilityDescription(abilityUrl) {
         });
 }
 
-
-
 function ricercaPk() {
     const nomePokemon = document
         .getElementById("search-input")
@@ -88,9 +86,15 @@ function ricercaPk() {
         })
         .then((data) => {
             const name = upper(data.name);
-            let image =
+            const normalSprite =
                 data.sprites.other.dream_world?.front_default ||
                 data.sprites.front_default;
+
+            const shinySprite =
+                data.sprites.other["official-artwork"]?.front_shiny ||
+                data.sprites.front_shiny;
+
+            var currentSprite = normalSprite;
 
             printRandomGender();
 
@@ -115,7 +119,7 @@ function ricercaPk() {
             if (nameElement && descriptionElement && sprite) {
                 nameElement.textContent = name;
                 numeroPokemon.textContent = `#${data.id.toString().padStart(3, "0")}`;
-                sprite.src = image;
+                sprite.src = currentSprite;
 
                 const statsElements = document.querySelectorAll(".stats > div");
                 if (statsElements.length === 6) {
@@ -138,7 +142,7 @@ function ricercaPk() {
                             ab.textContent = upper(ability.replace("-", " "));
 
                             const tooltip = document.createElement("div");
-                            tooltip.className = "absolute bg-gray-900 text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none"; // Tooltip styles
+                            tooltip.className = "absolute bg-[#1f1f1f] text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none"; // Tooltip styles
                             tooltip.textContent = "Caricamento...";
                             document.body.appendChild(tooltip);
                             tooltip.style.position = "absolute";
@@ -211,6 +215,11 @@ function ricercaPk() {
                     descriptionElement.textContent =
                         "Errore nel recupero della descrizione.";
                 });
+
+            window.shinySprite = function () {
+                currentSprite = currentSprite === normalSprite ? shinySprite : normalSprite;
+                sprite.src = currentSprite;
+            };
         })
         .then(() => {
             document.getElementById("main-box").hidden = false;
@@ -277,15 +286,15 @@ function addToSquad(pokemon) {
     });
 
     rightContainer.appendChild(pokemonName);
-    rightContainer.appendChild(hpBarContainer); 
-    rightContainer.appendChild(hpValue);  
+    rightContainer.appendChild(hpBarContainer);
+    rightContainer.appendChild(hpValue);
 
-    
+
     pokemonSprite.addEventListener("click", () => removeFromSquad(pokemonSprite));
 
-    
-    pokemonDiv.appendChild(pokemonSprite);  
-    pokemonDiv.appendChild(rightContainer); 
+
+    pokemonDiv.appendChild(pokemonSprite);
+    pokemonDiv.appendChild(rightContainer);
 
     squadContainer.appendChild(pokemonDiv);
 }
@@ -327,23 +336,23 @@ function savePokemon() {
     fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`)
         .then(response => response.json())
         .then(data => {
-            
+
             const baseHP = data.stats.find(stat => stat.stat.name === "hp").base_stat;
-            const level = 50; 
+            const level = 50;
 
-            
-            const maxHP = Math.floor(((2 * baseHP + 31 + 0) * level) / 100 + level + 10); 
 
-            
+            const maxHP = Math.floor(((2 * baseHP + 31 + 0) * level) / 100 + level + 10);
+
+
             const randomHP = Math.floor(Math.random() * maxHP);
 
             const pokemon = {
                 name: name,
                 guid: `pk-${Date.now()}${Math.random()}`,
                 sprite: sprite.src,
-                hp: randomHP, 
-                maxHP: maxHP, 
-                hpPercentage: Math.round((randomHP / maxHP) * 100) 
+                hp: randomHP,
+                maxHP: maxHP,
+                hpPercentage: Math.round((randomHP / maxHP) * 100)
             };
 
             squad.push(pokemon);
@@ -359,20 +368,20 @@ function savePokemon() {
 function printRandomGender() {
     const genderContainer = document.getElementById("genderContainer");
 
-    
+
     if (!genderContainer) {
         console.error("Elemento con id 'genderContainer' non trovato!");
         return;
     }
 
-    
+
     const randomChoice = Math.random();
 
-    
+
     if (randomChoice < 0.5) {
-        genderContainer.textContent = "♂️"; 
+        genderContainer.textContent = "♂️";
     } else {
-        genderContainer.textContent = "♀️"; 
+        genderContainer.textContent = "♀️";
     }
 }
 
