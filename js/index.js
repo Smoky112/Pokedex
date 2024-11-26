@@ -318,8 +318,8 @@ function loadSquad() {
     });
 }
 
-document.getElementById("poke-button").addEventListener("click", function () {
-    savePokemon()
+document.getElementById("pokeball").addEventListener("click", function () {
+    getRandomPokemon();
 });
 
 function savePokemon() {
@@ -387,6 +387,7 @@ function printRandomGender() {
 
 document.getElementById("search-input").addEventListener("keyup", (event) => {
     if (event.key !== "Enter") return;
+    document.getElementById("autocomplete-results").style.display = "none";
     document.getElementById("search-button").click();
     event.preventDefault();
 });
@@ -394,3 +395,244 @@ document.getElementById("search-input").addEventListener("keyup", (event) => {
 
 document.getElementById("main-box").hidden = true;
 window.onload = loadSquad;
+
+
+
+//TEST
+// Funzione per recuperare un elenco di Pokémon dalla API
+function getPokemonList() {
+    return fetch("https://pokeapi.co/api/v2/pokemon?limit=1000")  // Limita la risposta a 1000 Pokémon
+        .then(response => response.json())
+        .then(data => data.results.map(pokemon => pokemon.name));  // Estrai solo i nomi dei Pokémon
+}
+
+// Funzione per gestire l'input e mostrare i suggerimenti
+function handleSearchInput() {
+    const inputValue = document.getElementById("search-input").value.toLowerCase();
+    const autocompleteResults = document.getElementById("autocomplete-results");
+
+    // Se il campo di ricerca è vuoto, non fare nulla
+    if (!inputValue) {
+        autocompleteResults.style.display = "none";
+        return;
+    }
+
+    getPokemonList().then(pokemonList => {
+        const filteredPokemons = pokemonList.filter(pokemon => pokemon.startsWith(inputValue));
+
+        autocompleteResults.innerHTML = "";
+        if (filteredPokemons.length > 0) {
+            autocompleteResults.style.display = "block";
+            filteredPokemons.forEach(pokemon => {
+                const suggestionElement = document.createElement("div");
+                suggestionElement.textContent = pokemon.charAt(0).toUpperCase() + pokemon.slice(1);
+                suggestionElement.className = "ml-2 px-4 py-2 cursor-pointer hover:bg-gray-200 hover:scale-105 transform transition-all duration-150";
+                suggestionElement.onclick = function () {
+                    document.getElementById("search-input").value = pokemon;
+                    autocompleteResults.style.display = "none";
+                    ricercaPk();
+                };
+                autocompleteResults.appendChild(suggestionElement);
+            });
+        } else {
+            autocompleteResults.style.display = "none";
+        }
+    });
+}
+
+document.getElementById("search-input").addEventListener("input", handleSearchInput);
+
+
+
+//Pokemon casuale
+// Funzione per ottenere un Pokémon casuale
+function getRandomPokemon() {
+    const randomId = Math.floor(Math.random() * 1000) + 1; // ID casuale tra 1 e 1000
+    const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${randomId}`;
+    
+    fetch(pokemonUrl)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Pokemon non trovato");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            const nomePokemon = data.name;
+            // Chiama la funzione ricercaPk con il nome del Pokémon casuale
+            ricercaPk(nomePokemon);
+        })
+        .catch((error) => {
+            console.error("Errore nel recupero di un Pokémon casuale:", error);
+        });
+}
+
+// Funzione per gestire la ricerca del Pokémon, ora accetta un nome come parametro
+function ricercaPk(nomePokemon = "") {
+    // Usa il nome del Pokémon passato come parametro, se non è fornito utilizza quello nel campo di input
+    const nome = nomePokemon || document.getElementById("search-input").value.toLowerCase();
+
+    const nameElement = document.getElementById("name");
+    const descriptionElement = document.getElementById("description");
+    const sprite = document.getElementById("sprite");
+    const numeroPokemon = document.getElementById("number");
+    const abilitiesElements = document.getElementById("ability-div");
+    const typeContainer = document.getElementById("type-container");
+
+    if (!nome) {
+        alert("Inserisci un nome di Pokémon.");
+        return;
+    }
+
+    fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Pokemon non trovato");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            const name = upper(data.name);
+            const normalSprite =
+                data.sprites.other.dream_world?.front_default ||
+                data.sprites.front_default;
+
+            const shinySprite =
+                data.sprites.other["official-artwork"]?.front_shiny ||
+                data.sprites.front_shiny;
+
+            var currentSprite = normalSprite;
+
+            printRandomGender();
+
+            const hp = data.stats.find((stat) => stat.stat.name === "hp").base_stat;
+            const attack = data.stats.find(
+                (stat) => stat.stat.name === "attack"
+            ).base_stat;
+            const defense = data.stats.find(
+                (stat) => stat.stat.name === "defense"
+            ).base_stat;
+            const specialAttack = data.stats.find(
+                (stat) => stat.stat.name === "special-attack"
+            ).base_stat;
+            const specialDefense = data.stats.find(
+                (stat) => stat.stat.name === "special-defense"
+            ).base_stat;
+            const speed = data.stats.find(
+                (stat) => stat.stat.name === "speed"
+            ).base_stat;
+            const abilities = data.abilities.map((ability) => ability.ability.url);
+
+            if (nameElement && descriptionElement && sprite) {
+                nameElement.textContent = name;
+                numeroPokemon.textContent = `#${data.id.toString().padStart(3, "0")}`;
+                sprite.src = currentSprite;
+
+                const statsElements = document.querySelectorAll(".stats > div");
+                if (statsElements.length === 6) {
+                    statsElements[0].textContent = `HP: ${hp}`;
+                    statsElements[1].textContent = `ATK: ${attack}`;
+                    statsElements[2].textContent = `DEF: ${defense}`;
+                    statsElements[3].textContent = `SpA: ${specialAttack}`;
+                    statsElements[4].textContent = `SpD: ${specialDefense}`;
+                    statsElements[5].textContent = `SPD: ${speed}`;
+                }
+
+                Promise.all(abilities.map((url) => getAbilityTranslation(url)))
+                    .then((translatedAbilities) => {
+                        abilitiesElements.innerHTML = "";
+
+                        translatedAbilities.forEach((ability, index) => {
+                            let ab = document.createElement("div");
+                            ab.className =
+                                "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg hover:shadow-2xl transition duration-300";
+                            ab.textContent = upper(ability.replace("-", " "));
+
+                            const tooltip = document.createElement("div");
+                            tooltip.className = "absolute bg-[#1f1f1f] text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none z-50"; // Tooltip styles
+                            tooltip.textContent = "Caricamento...";
+                            document.body.appendChild(tooltip);
+                            tooltip.style.position = "absolute";
+
+                            ab.addEventListener("mouseover", () => {
+                                getAbilityDescription(abilities[index]).then((description) => {
+                                    tooltip.textContent = description;
+                                    tooltip.classList.remove('opacity-0', 'pointer-events-none');
+                                    tooltip.classList.add('opacity-100');
+                                });
+                            });
+
+                            ab.addEventListener("mousemove", (event) => {
+                                tooltip.style.left = `${event.pageX + 10}px`;
+                                tooltip.style.top = `${event.pageY + 10}px`;
+                            });
+
+                            ab.addEventListener("mouseleave", () => {
+                                tooltip.classList.remove('opacity-100');
+                                tooltip.classList.add('opacity-0', 'pointer-events-none');
+                            });
+
+                            abilitiesElements.appendChild(ab);
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Errore nel recupero delle abilità:", error);
+                        abilitiesElements.forEach((element) => {
+                            element.textContent = "Errore nel recupero delle abilità.";
+                        });
+                    });
+
+                typeContainer.innerHTML = "";
+                const types = data.types.map((type) => type.type.name.toUpperCase());
+                types.forEach((type) => {
+                    const img = document.createElement("img");
+                    img.src = `assets/types/${type}.png`;
+                    img.alt = type;
+                    img.className = "w-14 h-14 object-contain mt-2";
+                    typeContainer.appendChild(img);
+                });
+            }
+
+            fetch(`https://pokeapi.co/api/v2/pokemon-species/${data.id}`)
+                .then((response) => response.json())
+                .then((speciesData) => {
+                    const italianDescription = speciesData.flavor_text_entries.find(
+                        (entry) => entry.language.name === "it"
+                    );
+
+                    if (italianDescription) {
+                        descriptionElement.textContent =
+                            italianDescription.flavor_text.replace(/\n/g, " ");
+                    } else {
+                        const englishDescription = speciesData.flavor_text_entries.find(
+                            (entry) => entry.language.name === "en"
+                        );
+
+                        if (englishDescription) {
+                            descriptionElement.textContent =
+                                englishDescription.flavor_text.replace(/\n/g, " ");
+                        } else {
+                            descriptionElement.textContent =
+                                "Descrizione non disponibile.";
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.error("Errore nel recupero della descrizione:", error);
+                    descriptionElement.textContent =
+                        "Errore nel recupero della descrizione.";
+                });
+
+            window.shinySprite = function () {
+                currentSprite = currentSprite === normalSprite ? shinySprite : normalSprite;
+                sprite.src = currentSprite;
+            };
+        })
+        .then(() => {
+            document.getElementById("main-box").hidden = false;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
+
