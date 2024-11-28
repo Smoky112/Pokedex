@@ -92,7 +92,7 @@ function addToSquad(pokemon) {
   pokemonSprite.src = pokemon.sprite;
   pokemonSprite.alt = pokemon.name;
   pokemonSprite.className =
-    "w-24 h-24 rounded-lg cursor-pointer hover:opacity-75";
+    "w-24 h-24 rounded-lg cursor-pointer hover:opacity-75 hover:scale-90";
 
   const rightContainer = document.createElement("div");
   rightContainer.className = "flex flex-col items-start ml-4";
@@ -402,21 +402,21 @@ function ricercaPk(nomePokemon = "") {
         }
 
         Promise.all(abilities.map((url) => getAbilityTranslation(url)))
-          .then((translatedAbilities) => {
-            abilitiesElements.innerHTML = "";
-
-            translatedAbilities.forEach((ability, index) => {
-              let ab = document.createElement("div");
-              ab.className =
-                "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg hover:shadow-2xl transition duration-300";
-              ab.textContent = upper(ability.replace("-", " "));
-
-              const tooltip = document.createElement("div");
-              tooltip.className =
-                "absolute bg-[#1f1f1f] text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none z-50"; // Tooltip styles
-              tooltip.textContent = "Caricamento...";
-              document.body.appendChild(tooltip);
-              tooltip.style.position = "absolute";
+        .then((translatedAbilities) => {
+          abilitiesElements.innerHTML = "";
+      
+          translatedAbilities.forEach((ability, index) => {
+            let ab = document.createElement("div");
+            ab.className =
+              "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg hover:scale-110 hover:shadow-3xl transition-all duration-300 transform"; // Aggiungi hover:scale-110 e transition per un effetto fluido
+            ab.textContent = upper(ability.replace("-", " "));
+      
+            const tooltip = document.createElement("div");
+            tooltip.className =
+              "absolute bg-[#1f1f1f] text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none z-50"; // Tooltip styles
+            tooltip.textContent = "Caricamento...";
+            document.body.appendChild(tooltip);
+            tooltip.style.position = "absolute";
 
               ab.addEventListener("mouseover", () => {
                 getAbilityDescription(abilities[index]).then((description) => {
