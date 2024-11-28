@@ -44,7 +44,6 @@
       .search-container {
         position: relative;
       }
-      
     </style>
   </head>
 
@@ -54,32 +53,47 @@
     <!-- dd092f -->
     <div
       id="bg-pokeballs"
-      class="absolute w-[100vh] h-[300vh] z-0 bg-[url(assets/Pokeball.svg)] bg-[length:75px_75px] bg-repeat-space"
+      class="absolute w-full h-[108vh] z-0 bg-[url(assets/Pokeball.svg)] bg-[length:75px_75px] bg-repeat-space "
     ></div>
 
+    <!-- POP UP DI INFORMAZIONE-->
+    <button
+      id="info-button"
+      class="fixed top-4 right-4 p-4 bg-blue-500 text-white text-xl rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 hover:scale-110"
+    >
+      ℹ️ Info
+    </button>
+    <div
+      id="popup-overlay"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-[9998] pointer-events-auto"
+    ></div>
+
+    <div
+      id="popup"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div class="bg-white text-black rounded-lg p-8 mx-4 w-[26vw]">
+        <!-- Modificato w-[90vw] -->
+        <h2 class="text-2xl font-bold mb-3">
+          Benvenuto nel tuo Pokédex Personale!
+        </h2>
+        <p class="mb-4">
+          Questo sito ti permette di esplorare tutti i Pokémon e scoprire le
+          loro caratteristiche. Puoi cercare il tuo Pokémon preferito, vederne
+          la descrizione, le statistiche e le abilità semplicemente cliccando
+          sulla Pokeball oppure inserendo il nome del pokemon!
+        </p>
+        <button
+          id="close-popup"
+          class="mt-4 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-300"
+        >
+          Chiudi
+        </button>
+      </div>
+    </div>
 
     <!-- POP UP DI INFORMAZIONE-->
-    <button id="info-button" class="fixed top-4 right-4 p-4 bg-blue-500 text-white text-xl rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 hover:scale-110">ℹ️ Info</button>
-    <div
-    id="popup-overlay"
-    class="hidden fixed inset-0 bg-black bg-opacity-50 z-[9998] pointer-events-auto">
-    </div>
-  
-  <div id="popup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-white text-black rounded-lg p-8 mx-4 w-[26vw]"> <!-- Modificato w-[90vw] -->
-      <h2 class="text-2xl font-bold mb-3">Benvenuto nel tuo Pokédex Personale!</h2>
-      <p class="mb-4">
-        Questo sito ti permette di esplorare tutti i Pokémon e scoprire le
-        loro caratteristiche. Puoi cercare il tuo Pokémon preferito, vederne
-        la descrizione, le statistiche e le abilità semplicemente cliccando
-        sulla Pokeball oppure inserendo il nome del pokemon!
-      </p>
-      <button id="close-popup" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-300">Chiudi</button>
-    </div>
-  </div>
 
-  <!-- POP UP DI INFORMAZIONE-->
-  
     <div class="w-full max-w-4xl p-8 z-50">
       <header class="mb-8">
         <div class="flex justify-center mb-8">
@@ -200,7 +214,13 @@
               <span id="genderContainer" class="text-2xl">♂️</span>
 
               <div id="type-container" class="flex gap-2 top-1"></div>
-              <button type="button" id="play-cry"><img src="sound-waves.png" alt="audio" class="size-9 hover:animate-pulse"></button>
+              <button type="button" id="play-cry">
+                <img
+                  src="sound-waves.png"
+                  alt="audio"
+                  class="size-9 hover:animate-pulse"
+                />
+              </button>
             </div>
 
             <div class="bg-[#243629] bg-opacity-80 rounded-xl">
@@ -256,17 +276,17 @@
         ></div>
 
         <div class="flex justify-center mt-4">
-            
           <button
             id="save-button"
             onclick="savePokemon()"
-            class="mt-6 mb-0 w-full max-w-3xl p-3 bg-[#40a545] text-white rounded-lg hover:bg-[#317c34] hover:shadow-xl transition duration-300 hover:scale-95">
-                Aggiungi alla squadra</button>
-            
+            class="mt-6 mb-0 w-full max-w-3xl p-3 bg-[#40a545] text-white rounded-lg hover:bg-[#317c34] hover:shadow-xl transition duration-300 hover:scale-95"
+          >
+            Aggiungi alla squadra
+          </button>
         </div>
       </div>
     </div>
-
+    
     <div
       class="absolute bottom-0 w-full text-center text-xs text-gray-200 text-opacity-50"
     >

@@ -306,10 +306,8 @@ document
   .getElementById("search-input")
   .addEventListener("input", handleSearchInput);
 
-//Pokemon casuale
-// Funzione per ottenere un Pokémon casuale
 function getRandomPokemon() {
-  const randomId = Math.floor(Math.random() * 1000) + 1; // ID casuale tra 1 e 1000
+  const randomId = Math.floor(Math.random() * 1000) + 1;
   const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${randomId}`;
 
   fetch(pokemonUrl)
@@ -321,7 +319,7 @@ function getRandomPokemon() {
     })
     .then((data) => {
       const nomePokemon = data.name;
-      // Chiama la funzione ricercaPk con il nome del Pokémon casuale
+
       ricercaPk(nomePokemon);
     })
     .catch((error) => {
@@ -329,9 +327,7 @@ function getRandomPokemon() {
     });
 }
 
-// Funzione per gestire la ricerca del Pokémon, ora accetta un nome come parametro
 function ricercaPk(nomePokemon = "") {
-  // Usa il nome del Pokémon passato come parametro, se non è fornito utilizza quello nel campo di input
   const nome =
     nomePokemon || document.getElementById("search-input").value.toLowerCase();
 
@@ -402,21 +398,21 @@ function ricercaPk(nomePokemon = "") {
         }
 
         Promise.all(abilities.map((url) => getAbilityTranslation(url)))
-        .then((translatedAbilities) => {
-          abilitiesElements.innerHTML = "";
-      
-          translatedAbilities.forEach((ability, index) => {
-            let ab = document.createElement("div");
-            ab.className =
-              "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg hover:scale-110 hover:shadow-3xl transition-all duration-300 transform"; // Aggiungi hover:scale-110 e transition per un effetto fluido
-            ab.textContent = upper(ability.replace("-", " "));
-      
-            const tooltip = document.createElement("div");
-            tooltip.className =
-              "absolute bg-[#1f1f1f] text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none z-50"; // Tooltip styles
-            tooltip.textContent = "Caricamento...";
-            document.body.appendChild(tooltip);
-            tooltip.style.position = "absolute";
+          .then((translatedAbilities) => {
+            abilitiesElements.innerHTML = "";
+
+            translatedAbilities.forEach((ability, index) => {
+              let ab = document.createElement("div");
+              ab.className =
+                "px-4 py-1 bg-[#E6E6FA] text-gray-900 rounded-lg hover:scale-110 hover:shadow-3xl transition-all duration-300 transform";
+              ab.textContent = upper(ability.replace("-", " "));
+
+              const tooltip = document.createElement("div");
+              tooltip.className =
+                "absolute bg-[#1f1f1f] text-white max-w-xl text-sm p-2 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none z-50";
+              tooltip.textContent = "Caricamento...";
+              document.body.appendChild(tooltip);
+              tooltip.style.position = "absolute";
 
               ab.addEventListener("mouseover", () => {
                 getAbilityDescription(abilities[index]).then((description) => {
@@ -457,12 +453,17 @@ function ricercaPk(nomePokemon = "") {
         });
 
         const formatName = (name) => {
-          return name.replace(/-(\w)/g, (match, letter) => //alcuni pokemon tipo Nidoran-F hanno un nome diverso, togliamo il -!
-            letter.toLowerCase()
+          return name.replace(
+            /-(\w)/g,
+            (
+              match,
+              letter //alcuni pokemon tipo Nidoran-F hanno un nome diverso, togliamo il -!
+            ) => letter.toLowerCase()
           );
         };
 
-        const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${formatName( //USIAMO UN'ALTRA API!
+        const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${formatName(
+          //USIAMO UN'ALTRA API!
           data.name
         )}.mp3`;
         const playCryButton = document.getElementById("play-cry");
