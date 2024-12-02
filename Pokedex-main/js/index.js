@@ -2,6 +2,7 @@ function upper(word) {
     return word[0].toUpperCase() + word.slice(1);
 }
 
+//Genera un codice univoco per ogni pokemon aggiunto così da non avere problemi quando lo eliminiamo
 function generateGUID() {
     var S4 = function () {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -22,6 +23,7 @@ function generateGUID() {
     );
 }
 
+//troviamo la traduzione delle abilità in italiano nell'API
 function getAbilityTranslation(abilityUrl) {
     return fetch(abilityUrl)
         .then((response) => response.json())
@@ -40,6 +42,7 @@ function getAbilityTranslation(abilityUrl) {
         });
 }
 
+//Cerchiamo la DESCRIZIONE in italiano o (fallback) in inglese
 function getAbilityDescription(abilityUrl) {
     return fetch(abilityUrl)
         .then((response) => response.json())
@@ -47,7 +50,6 @@ function getAbilityDescription(abilityUrl) {
             const italianDescription = data.flavor_text_entries.find(
                 (entry) => entry.language.name === "it"
             );
-
             console.log(italianDescription);
 
             if (italianDescription) {
@@ -73,6 +75,7 @@ function getAbilityDescription(abilityUrl) {
         });
 }
 
+//Serve per caricare la squadra dopo il riavvio
 function loadSquad() {
     const squad = JSON.parse(localStorage.getItem("squad")) || [];
     squad.forEach((pokemon) => {
@@ -80,25 +83,26 @@ function loadSquad() {
     });
 }
 
+//funzione per aggiungere alla Squadra il pokemon
 function addToSquad(pokemon) {
     const squadContainer = document.getElementById("squad-container");
 
     const pokemonDiv = document.createElement("div");
     pokemonDiv.id = pokemon.guid;
     pokemonDiv.className =
-        "relative flex items-center justify-start bg-black bg-opacity-50 rounded-lg p-2";
+        "relative flex items-center justify-start bg-black bg-opacity-50 rounded-lg p-2 cursor-pointer hover:scale-105 transform transition-all";
 
     const pokemonSprite = document.createElement("img");
     pokemonSprite.src = pokemon.sprite;
     pokemonSprite.alt = pokemon.name;
     pokemonSprite.className =
-        "w-24 h-24 rounded-lg cursor-pointer hover:opacity-75 hover:scale-90";
+        "w-24 h-24 rounded-lg cursor-pointer hover:opacity-75 hover:size-70";
 
     const rightContainer = document.createElement("div");
     rightContainer.className = "flex flex-col items-start ml-4";
 
     const pokemonName = document.createElement("span");
-    pokemonName.textContent = pokemon.name;
+    pokemonName.textContent = `${pokemon.name} ${pokemon.gender}`; // Mostra anche il genere
     pokemonName.className = "text-white font-bold text-center py-1";
 
     const hpBarContainer = document.createElement("div");
@@ -124,6 +128,7 @@ function addToSquad(pokemon) {
     hpValue.textContent = `${pokemon.hp} / ${pokemon.maxHP}`;
     hpValue.className = "text-white text-center mt-1";
 
+    // Incrementa gli HP al clic
     hpBarContainer.addEventListener("click", () => {
         pokemon.hpPercentage = 100;
         hpBar.style.width = "100%";
@@ -135,7 +140,18 @@ function addToSquad(pokemon) {
     rightContainer.appendChild(hpBarContainer);
     rightContainer.appendChild(hpValue);
 
-    pokemonSprite.addEventListener("click", () => removeFromSquad(pokemonSprite));
+    // Mostra i dettagli del Pokémon cliccando sullo sfondo
+    pokemonDiv.addEventListener("click", (event) => {
+        if (event.target !== pokemonSprite) {
+            ricercaPk(pokemon.name.toLowerCase());
+        }
+    });
+
+    // Rimuove il Pokémon dalla squadra cliccando sullo sprite
+    pokemonSprite.addEventListener("click", (event) => {
+        event.stopPropagation();
+        removeFromSquad(pokemonSprite);
+    });
 
     pokemonDiv.appendChild(pokemonSprite);
     pokemonDiv.appendChild(rightContainer);
@@ -143,6 +159,9 @@ function addToSquad(pokemon) {
     squadContainer.appendChild(pokemonDiv);
 }
 
+
+
+//Serve per rimuovere il pokemon dalla squadra tramite lo sprite
 function removeFromSquad(pokemonSprite) {
     const squadContainer = document.getElementById("squad-container");
 
@@ -155,17 +174,11 @@ function removeFromSquad(pokemonSprite) {
     squadContainer.removeChild(pokemonSprite.parentElement);
 }
 
-function loadSquad() {
-    const squad = JSON.parse(localStorage.getItem("squad")) || [];
-    squad.forEach((pokemon) => {
-        addToSquad(pokemon);
-    });
-}
-
 document.getElementById("poke-ball").addEventListener("click", function () {
     getRandomPokemon();
 });
 
+//SERVE PER SALVARLO PER POI AGGIUNGERLO DOPO
 function savePokemon() {
     const sprite = document.getElementById("sprite");
     const name = document.getElementById("name").textContent;
@@ -190,7 +203,7 @@ function savePokemon() {
             );
 
             const randomHP = Math.floor(Math.random() * maxHP);
-
+            const gender = Math.random() < 0.5 ? "♂️" : "♀️";
             const pokemon = {
                 name: name,
                 guid: `pk-${Date.now()}${Math.random()}`,
@@ -198,18 +211,20 @@ function savePokemon() {
                 hp: randomHP,
                 maxHP: maxHP,
                 hpPercentage: Math.round((randomHP / maxHP) * 100),
+                gender: gender,
             };
 
             squad.push(pokemon);
             localStorage.setItem("squad", JSON.stringify(squad));
 
-            addToSquad(pokemon);
+            addToSquad(pokemon); //AGGIUNTA
         })
         .catch((error) => {
             console.error("Errore nel recuperare i dati del Pokémon:", error);
         });
 }
 
+//stampa del gender casuale
 function printRandomGender() {
     const genderContainer = document.getElementById("genderContainer");
 
@@ -237,7 +252,6 @@ document.getElementById("search-input").addEventListener("keyup", (event) => {
 document.getElementById("main-box").hidden = true;
 window.onload = loadSquad;
 
-//TEST
 // Funzione per recuperare un elenco di Pokémon dalla API
 function getPokemonList() {
     return fetch("https://pokeapi.co/api/v2/pokemon?limit=1000") // Limita la risposta a 1000 Pokémon
@@ -306,6 +320,7 @@ document
     .getElementById("search-input")
     .addEventListener("input", handleSearchInput);
 
+//genera un pokemon casuale    
 function getRandomPokemon() {
     const randomId = Math.floor(Math.random() * 1000) + 1;
     const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${randomId}`;
@@ -327,6 +342,7 @@ function getRandomPokemon() {
         });
 }
 
+//FUNZIONE PIù IMPORTANTE, Recuperiamo tutte le informazioni, tra cui nome, desc, sprite etc..
 function ricercaPk(nomePokemon = "") {
     const nome =
         nomePokemon || document.getElementById("search-input").value.toLowerCase();
@@ -520,6 +536,8 @@ function ricercaPk(nomePokemon = "") {
         });
 }
 
+
+//POPUP:
 const popup = document.getElementById("popup");
 const closePopup = document.getElementById("close-popup");
 const infoButton = document.getElementById("info-button");

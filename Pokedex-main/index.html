@@ -40,39 +40,35 @@
 </head>
 
 <body class="relative flex items-center justify-center min-h-screen bg-[#0f0f0f] text-white font-sans overflow-x-hidden">
-    <!-- dd092f -->
     <div id="bg-pokeballs"
         class="absolute w-full h-full z-0 bg-[url(assets/pokeball.svg)] bg-[length:75px_75px] bg-repeat-space"></div>
 
-    <!-- POP UP DI INFORMAZIONE-->
+    <!-- POP UP DI INFORMAZIONE -->
     <button id="info-button"
-        class="fixed top-4 right-4 p-4 bg-blue-500 text-white text-xl rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 hover:scale-110">
-        ℹ️ Info
+        class="fixed top-4 right-4 p-4 bg-blue-600 text-white text-xl rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 hover:scale-110">
+        ℹ️ PokéInfo
     </button>
     <div id="popup-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[9998] pointer-events-auto"></div>
 
     <div id="popup"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-white text-black rounded-lg p-8 mx-4 w-[26vw]">
-            <!-- Modificato w-[90vw] -->
             <h2 class="text-2xl font-bold mb-3">
                 Benvenuto nel tuo Pokédex Personale!
             </h2>
-            <p class="mb-4">
-                Questo sito ti permette di esplorare tutti i Pokémon e scoprire le
-                loro caratteristiche. Puoi cercare il tuo Pokémon preferito, vederne
-                la descrizione, le statistiche e le abilità semplicemente cliccando
-                sulla Pokeball oppure inserendo il nome del pokemon!
+            <p class="mb-4 text-lg">
+                Benvenuto nel mondo dei Pokémon! Scopri tutte le loro caratteristiche: cerca il tuo preferito inserendo il nome, 
+                esplora statistiche abilità e tanto altro, oppure clicca sulla Pokéball per tentare la fortuna generando un Pokémon casuale!
             </p>
             <button id="close-popup"
-                class="mt-4 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-300">
+                class="mt-4 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-300 text-lg">
                 Chiudi
             </button>
         </div>
     </div>
 
     <!-- POP UP DI INFORMAZIONE-->
-
+    
     <div class="w-full max-w-4xl p-8 z-50">
         <header class="mb-8">
             <div class="flex justify-center mb-8">
